@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mashad Live Dock Widget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #060913;
+            color: #f8fafc;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .glass-dock {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+        }
+        .tv-focusable {
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+        }
+        .tv-focusable:focus,
+        .tv-focusable:hover {
+            outline: none;
+            transform: scale(1.03);
+            box-shadow: 0 0 0 2px #ffffff, 0 8px 20px rgba(99, 102, 241, 0.35);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SINGLE-EVENT COMPACT DOCK WIDGET (SHOWS ONE EVENT AT A TIME) -->
+    <div class="w-full max-w-3xl glass-dock rounded-3xl p-4 sm:p-5 flex flex-col gap-3">
+
+        <!-- TOP BAR: BRAND + COUNTER + CONTROLS -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-rose-600 to-red-700 flex items-center justify-center font-extrabold text-[11px] text-white shadow">
+                    M
+                </div>
+                <span class="text-xs font-extrabold tracking-wide text-white uppercase">Live Dock</span>
+                <span id="eventCounterBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
+                    1 / 6
+                </span>
+                <span id="liveDataSourceBadge" class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    LIVE
+                </span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button id="syncLiveBtn" tabindex="0" class="tv-focusable px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Sync
+                </button>
+                <button id="openPrefsBtn" tabindex="0" class="tv-focusable px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-[11px] font-semibold">
+                    ⚙ Interests
+                </button>
+                <button id="openRepoBtn" tabindex="0" class="tv-focusable px-2.5 py-1 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/30 text-indigo-300 text-[11px] font-semibold">
+                    &lt;/&gt; Kotlin
+                </button>
+            </div>
+        </div>
+
+        <!-- COMPACT CATEGORY / REGION / OTT FILTER STRIP -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar" id="widgetFilterBar"></div>
+
+        <!-- SINGLE-EVENT HERO CARD (ONE MATCH / SHOW AT A TIME) -->
+        <div id="singleEventStage" class="rounded-2xl p-4 bg-gradient-to-r from-slate-900/95 via-indigo-950/60 to-slate-900/95 border border-white/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <!-- Left: Team Crests / Channel Logo + Event Details -->
+            <div class="flex items-center gap-3.5 min-w-0 flex-1">
+                <div id="singleEventVisual" class="flex items-center -space-x-2 shrink-0"></div>
+
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-rose-600 text-white">
+                            <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                            <span id="singleEventTime">LIVE NOW</span>
+                        </span>
+                        <span id="singleEventTag" class="text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-slate-300">
+                            Cricket • Hindi
+                        </span>
+                        <span id="singleEventScoreBadge" class="hidden inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 font-mono text-[11px] font-extrabold text-emerald-300">
+                            ⚡ <span id="singleEventScoreText"></span>
+                        </span>
+                    </div>
+
+                    <h2 id="singleEventTitle" class="text-sm sm:text-base font-extrabold text-white truncate mt-1.5">
+                        India vs Australia — Live Cricket Center
+                    </h2>
+                    <div class="flex items-center gap-2 mt-1 text-[11px] text-slate-300">
+                        <span id="singleEventChannel" class="font-semibold text-slate-200">Star Sports 1 HD</span>
+                        <span>•</span>
+                        <span id="singleEventPlatform" class="text-sky-300 font-bold">JioHotstar</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Direct Watch Buttons + Prev/Next Switcher -->
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0">
+                <div class="flex items-center gap-1.5">
+                    <button id="singleWatchPrimaryBtn" tabindex="0" class="tv-focusable px-3.5 py-2 rounded-xl bg-white text-slate-950 text-xs font-extrabold flex items-center gap-1.5 shadow-lg">
+                        <span id="singleOttMiniLogo" class="w-4 h-4 inline-flex items-center justify-center"></span>
+                        <span>Watch</span>
+                    </button>
+                    <button id="singleWatchXstreamBtn" tabindex="0" title="Stream Free on Airtel Xstream Play" class="tv-focusable px-2.5 py-2 rounded-xl bg-rose-600/25 hover:bg-rose-600/40 border border-rose-500/40 text-rose-200 text-xs font-bold">
+                        Xstream Free
+                    </button>
+                </div>
+
+                <!-- Prev / Next Single Event Controls -->
+                <div class="flex items-center gap-1 pl-1.5 border-l border-white/10">
+                    <button id="prevEventBtn" tabindex="0" title="Previous Event" class="tv-focusable w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+                        ‹
+                    </button>
+                    <button id="nextEventBtn" tabindex="0" title="Next Event" class="tv-focusable w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+                        ›
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOT INDICATORS FOR CURRENT EVENT -->
+        <div id="eventDotsBar" class="flex items-center justify-center gap-1.5"></div>
+
+    </div>
+
+    <!-- ONE-CLICK WATCH MODAL (PRIMARY OTT + FREE AIRTEL XSTREAM PLAY) -->
+    <div id="watchModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="w-full max-w-md glass-dock rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-300">Direct OTT Deep-Link</span>
+                <button onclick="closeWatchModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 rounded-lg bg-white/5">✕</button>
+            </div>
+            <div>
+                <h3 id="modalMatchTitle" class="text-base font-extrabold text-white"></h3>
+                <p id="modalMatchSub" class="text-xs text-slate-300 mt-0.5"></p>
+                <div id="modalScoreLine" class="hidden mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/30 font-mono text-xs font-bold text-emerald-300"></div>
+            </div>
+            <div class="p-3 rounded-xl bg-black/50 border border-white/10 font-mono text-[11px] text-sky-300 break-all" id="modalIntentCode"></div>
+            <div class="grid grid-cols-2 gap-2.5">
+                <a id="modalPrimaryLink" href="#" target="_blank" rel="noopener noreferrer" class="tv-focusable py-2.5 px-3 rounded-xl bg-white text-slate-950 font-extrabold text-xs text-center shadow">
+                    Open Primary OTT ↗
+                </a>
+                <a id="modalXstreamLink" href="#" target="_blank" rel="noopener noreferrer" class="tv-focusable py-2.5 px-3 rounded-xl bg-rose-600 text-white font-extrabold text-xs text-center shadow">
+                    Airtel Xstream Free ↗
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MY INTERESTS MODAL -->
+    <div id="prefsModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="w-full max-w-md glass-dock rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-white">⚙ Customize My Interests</h3>
+                <button onclick="closePrefsModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 rounded-lg bg-white/5">✕</button>
+            </div>
+            <p class="text-xs text-slate-300">Select the regions, languages, or sports you want in your dock (leave all unselected to show everything):</p>
+            <div id="interestChipsGrid" class="flex flex-wrap gap-2"></div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="clearInterests()" class="px-3 py-1.5 rounded-xl bg-white/10 text-xs font-bold text-slate-300">Reset All</button>
+                <button onclick="closePrefsModal()" class="px-4 py-1.5 rounded-xl bg-indigo-600 text-xs font-extrabold text-white">Save & Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KOTLIN COMPOSE CODE MODAL -->
+    <div id="repoModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="w-full max-w-2xl glass-dock rounded-3xl p-5 flex flex-col gap-3 max-h-[85vh]">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-white">Jetpack Compose Single-Event Dock Widget</h3>
+                <div class="flex items-center gap-2">
+                    <button id="copyKotlinBtn" onclick="copyKotlinSnippet()" class="px-3 py-1 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold">
+                        Copy Code
+                    </button>
+                    <button onclick="closeRepoModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 rounded-lg bg-white/5">✕</button>
+                </div>
+            </div>
+            <pre id="kotlinCodePre" class="overflow-auto p-3.5 rounded-2xl bg-slate-950 border border-white/10 text-[11px] font-mono text-slate-200 leading-relaxed"></pre>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 1. LIVE SCHEDULE DATA (WITH LIVE SCORES, OTT LINKS & FREE XSTREAM LINKS)
+        // =========================================================================
+        let livePrograms = [
+            {
+                id: "ind_cricket_live",
+                title: "India vs Australia — Live Cricket Center",
+                channel: "Star Sports 1 HD",
+                platform: "JioHotstar",
+                category: "Cricket",
+                region: "Hindi",
+                time: "LIVE NOW",
+                liveScore: "IND 248/4 (42.3 ov)",
+                teamA: "India",
+                teamB: "Australia",
+                pkg: "in.startv.hotstar",
+                deepLink: "https://www.hotstar.com/in/sports/cricket",
+                xstreamUri: "https://www.airtelxstream.in/livetv-channels/star-sports-1-hd/STAR_SPORTS_1_HD"
+            },
+            {
+                id: "isl_kbfc_mbsg",
+                title: "Kerala Blasters vs Mohun Bagan — ISL Live",
+                channel: "Sports18 Khel / Asianet Plus",
+                platform: "JioHotstar",
+                category: "ISL Football",
+                region: "Malayalam",
+                time: "LIVE NOW",
+                liveScore: "KBFC 2 - 1 MBSG • 68'",
+                teamA: "Kerala Blasters",
+                teamB: "Mohun Bagan",
+                pkg: "in.startv.hotstar",
+                deepLink: "https://www.hotstar.com/in/sports/football",
+                xstreamUri: "https://www.airtelxstream.in/livetv-channels/asianet-plus/ASIANET_PLUS"
+            },
+            {
+                id: "ucl_rma_ars",
+                title: "Real Madrid vs Arsenal — UEFA Champions League",
+                channel: "Sony Sports Ten 1 HD",
+                platform: "SonyLIV",
+                category: "Football",
+                region: "International",
+                time: "LIVE NOW",
+                liveScore: "RMA 1 - 1 ARS • HT",
+                teamA: "Real Madrid",
+                teamB: "Arsenal",
+                pkg: "com.sonyliv",
+                deepLink: "https://www.sonyliv.com/custompage/sports",
+                xstreamUri: "https://www.airtelxstream.in/livetv-channels/sony-ten-1-hd/SONY_TEN_1_HD"
+            },
+            {
+                id: "asianet_prime",
+                title: "Bigg Boss Malayalam / Prime Serials",
+                channel: "Asianet HD",
+                platform: "JioHotstar",
+                category: "Entertainment",
+                region: "Malayalam",
+                time: "ON AIR",
+                liveScore: "",
+                teamA: null,
+                teamB: null,
+                pkg: "in.startv.hotstar",
+                deepLink: "https://www.hotstar.com/in/channels/asianet",
+                xstreamUri: "https://www.airtelxstream.in/livetv-channels/asianet-hd/ASIANET_HD"
+            },
+            {
+                id: "suntv_prime",
+                title: "Singapenne — Tamil Prime Time",
+                channel: "Sun TV HD",
+                platform: "Sun NXT",
+                category: "Entertainment",
+                region: "Tamil",
+                time: "ON AIR",
+                liveScore: "",
+                teamA: null,
+                teamB: null,
+                pkg: "com.suntv.sunnxt",
+                deepLink: "https://www.sunnxt.com/live-tv",
+                xstreamUri: "https://www.airtelxstream.in/livetv-channels/sun-tv-hd/SUN_TV_HD"
+            },
+            {
+                id: "manorama_news",
+                title: "Kerala Evening News Bulletin",
+                channel: "Manorama News",
+                platform: "Airtel Xstream",
+                category: "News",
+                region: "Malayalam",
+                time: "LIVE",
+                liveScore: "",
+                teamA: null,
+                teamB: null,
+                pkg: "tv.accedo.airtel.wynk",
+                deepLink: "https://www.airtelxstream.in/livetv-channels/manorama-news/MANORAMA_NEWS",
+                xstreamUri: "https://www.airtelxstream.in/livetv-channels/manorama-news/MANORAMA_NEWS"
+            }
+        ];
+
+        // =========================================================================
+        // 2. INLINE SVG BRAND LOGOS & TEAM CRESTS (ZERO BROKEN IMAGES)
+        // =========================================================================
+        const brandBadges = {
+            "JioHotstar": { bg: "linear-gradient(135deg,#0f172a,#1d4ed8)", text: "#38bdf8", label: "JH" },
+            "SonyLIV": { bg: "linear-gradient(135deg,#1e1b4b,#6d28d9)", text: "#e9d5ff", label: "LIV" },
+            "Airtel Xstream": { bg: "linear-gradient(135deg,#7f1d1d,#dc2626)", text: "#ffffff", label: "AX" },
+            "Sun NXT": { bg: "linear-gradient(135deg,#7c2d12,#ea580c)", text: "#fed7aa", label: "SUN" },
+            "Star Sports 1 HD": { bg: "linear-gradient(135deg,#0284c7,#1e3a8a)", text: "#ffffff", label: "SS1" },
+            "Asianet HD": { bg: "linear-gradient(135deg,#991b1b,#f59e0b)", text: "#ffffff", label: "ASN" },
+            "Sony Sports Ten 1 HD": { bg: "linear-gradient(135deg,#312e81,#4f46e5)", text: "#ffffff", label: "TEN1" },
+            "Sun TV HD": { bg: "linear-gradient(135deg,#b91c1c,#f97316)", text: "#ffffff", label: "SUN" },
+            "Manorama News": { bg: "linear-gradient(135deg,#991b1b,#dc2626)", text: "#ffffff", label: "MN" }
+        };
+
+        const teamColors = {
+            "India": { c1: "#1d4ed8", c2: "#f97316", abbr: "IND" },
+            "Australia": { c1: "#eab308", c2: "#15803d", abbr: "AUS" },
+            "Kerala Blasters": { c1: "#facc15", c2: "#1e3a8a", abbr: "KBFC" },
+            "Mohun Bagan": { c1: "#7f1d1d", c2: "#15803d", abbr: "MBSG" },
+            "Real Madrid": { c1: "#f8fafc", c2: "#eab308", abbr: "RMA", darkText: true },
+            "Arsenal": { c1: "#dc2626", c2: "#ffffff", abbr: "ARS" },
+            "Barcelona": { c1: "#1d4ed8", c2: "#b91c1c", abbr: "FCB" },
+            "Liverpool": { c1: "#b91c1c", c2: "#facc15", abbr: "LIV" },
+            "Manchester City": { c1: "#38bdf8", c2: "#0f172a", abbr: "MCI" }
+        };
+
+        function getBrandLogoHtml(name) {
+            const b = brandBadges[name] || { bg: "linear-gradient(135deg,#334155,#0f172a)", text: "#f8fafc", label: (name || "TV").slice(0, 3).toUpperCase() };
+            return `<svg viewBox="0 0 40 40" class="w-full h-full rounded-lg"><defs><linearGradient id="g_${b.label}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#g_${b.label})"/><text x="20" y="24" text-anchor="middle" fill="${b.text}" font-family="Inter,sans-serif" font-weight="800" font-size="11">${b.label}</text></svg>`;
+        }
+
+        function resolveTeamCrestHtml(teamName) {
+            const key = Object.keys(teamColors).find(k => teamName.toLowerCase().includes(k.toLowerCase()));
+            const t = key ? teamColors[key] : { c1: "#4f46e5", c2: "#0f172a", abbr: teamName.slice(0, 3).toUpperCase() };
+            const txtColor = t.darkText ? "#0f172a" : "#ffffff";
+            return `<svg viewBox="0 0 44 44" class="w-full h-full"><path d="M22 3 L38 9 V22 C38 32 22 41 22 41 C22 41 6 32 6 22 V9 Z" fill="${t.c1}" stroke="${t.c2}" stroke-width="2.5"/><text x="22" y="25" text-anchor="middle" fill="${txtColor}" font-family="Inter,sans-serif" font-weight="800" font-size="10">${t.abbr}</text></svg>`;
+        }
+
+        function extractTeams(title) {
+            const clean = title.split("—")[0].split("-")[0].trim();
+            const parts = clean.split(/\s+vs\.?\s+/i);
+            return parts.length === 2 ? [parts[0].trim(), parts[1].trim()] : [null, null];
+        }
+
+        // =========================================================================
+        // 3. SINGLE-EVENT STATE & RENDERING
+        // =========================================================================
+        const filterChips = ["All", "Cricket", "ISL Football", "Football", "Malayalam", "Tamil", "Hindi", "JioHotstar", "SonyLIV", "Airtel Xstream"];
+        let activeFilter = "All";
+        let savedInterests = new Set();
+        let currentIndex = 0;
+
+        function getFilteredPrograms() {
+            return livePrograms.filter(item => {
+                if (savedInterests.size > 0) {
+                    const matchInterest = savedInterests.has(item.region) || savedInterests.has(item.category);
+                    if (!matchInterest) return false;
+                }
+                if (activeFilter === "All") return true;
+                return (
+                    item.category.toLowerCase() === activeFilter.toLowerCase() ||
+                    item.region.toLowerCase() === activeFilter.toLowerCase() ||
+                    item.platform.toLowerCase().includes(activeFilter.toLowerCase())
+                );
+            });
+        }
+
+        function renderFilterBar() {
+            const bar = document.getElementById("widgetFilterBar");
+            bar.innerHTML = filterChips.map(chip => {
+                const active = activeFilter === chip;
+                return `<button onclick="setFilter('${chip}')" class="tv-focusable shrink-0 px-2.5 py-1 rounded-full text-[11px] font-bold border ${
+                    active
+                        ? "bg-white text-slate-950 border-white shadow"
+                        : "bg-white/5 text-slate-300 border-white/10 hover:bg-white/10"
+                }">${chip}</button>`;
+            }).join("");
+        }
+
+        function setFilter(chip) {
+            activeFilter = chip;
+            currentIndex = 0;
+            renderFilterBar();
+            renderDockWidget();
+        }
+
+        function renderDockWidget() {
+            const list = getFilteredPrograms();
+            const counter = document.getElementById("eventCounterBadge");
+            const dotsBar = document.getElementById("eventDotsBar");
+
+            if (list.length === 0) {
+                counter.textContent = "0 / 0";
+                document.getElementById("singleEventTitle").textContent = "No matching live events";
+                document.getElementById("singleEventChannel").textContent = "Select 'All' or update Interests";
+                document.getElementById("singleEventPlatform").textContent = "";
+                document.getElementById("singleEventScoreBadge").classList.add("hidden");
+                dotsBar.innerHTML = "";
+                return;
+            }
+
+            if (currentIndex >= list.length) currentIndex = 0;
+            if (currentIndex < 0) currentIndex = list.length - 1;
+
+            const item = list[currentIndex];
+            counter.textContent = `${currentIndex + 1} / ${list.length}`;
+
+            // Render Team Crests or Channel Logo
+            const visual = document.getElementById("singleEventVisual");
+            const [tA, tB] = item.teamA && item.teamB ? [item.teamA, item.teamB] : extractTeams(item.title);
+            if (tA && tB) {
+                visual.innerHTML = `
+                    <div class="w-11 h-11 rounded-full bg-slate-900 p-1 border border-white/20 shadow-md">${resolveTeamCrestHtml(tA)}</div>
+                    <div class="w-11 h-11 rounded-full bg-slate-900 p-1 border border-white/20 shadow-md">${resolveTeamCrestHtml(tB)}</div>
+                `;
+            } else {
+                visual.innerHTML = `
+                    <div class="w-12 h-12 rounded-2xl bg-slate-900 p-1.5 border border-white/20 shadow-md">${getBrandLogoHtml(item.channel)}</div>
+                `;
+            }
+
+            // Populate single event metadata & live score
+            document.getElementById("singleEventTime").textContent = item.time;
+            document.getElementById("singleEventTag").textContent = `${item.category} • ${item.region}`;
+            document.getElementById("singleEventTitle").textContent = item.title;
+            document.getElementById("singleEventChannel").textContent = item.channel;
+            document.getElementById("singleEventPlatform").textContent = item.platform;
+            document.getElementById("singleOttMiniLogo").innerHTML = getBrandLogoHtml(item.platform);
+
+            const scoreBadge = document.getElementById("singleEventScoreBadge");
+            const scoreText = document.getElementById("singleEventScoreText");
+            if (item.liveScore && item.liveScore.trim()) {
+                scoreText.textContent = item.liveScore;
+                scoreBadge.classList.remove("hidden");
+            } else {
+                scoreBadge.classList.add("hidden");
+            }
+
+            // Wire Watch Buttons
+            document.getElementById("singleWatchPrimaryBtn").onclick = () => openWatchModal(item);
+            document.getElementById("singleWatchXstreamBtn").onclick = () => {
+                window.open(item.xstreamUri || "https://www.airtelxstream.in/livetv-channels", "_blank", "noopener,noreferrer");
+            };
+
+            // Render Dot Switchers
+            dotsBar.innerHTML = list.map((_, idx) => `
+                <button onclick="goToEvent(${idx})" class="h-1.5 rounded-full transition-all ${
+                    idx === currentIndex ? "w-5 bg-white" : "w-1.5 bg-white/25 hover:bg-white/50"
+                }"></button>
+            `).join("");
+        }
+
+        function goToEvent(idx) {
+            currentIndex = idx;
+            renderDockWidget();
+        }
+
+        document.getElementById("prevEventBtn").onclick = () => {
+            const list = getFilteredPrograms();
+            if (!list.length) return;
+            currentIndex = (currentIndex - 1 + list.length) % list.length;
+            renderDockWidget();
+        };
+
+        document.getElementById("nextEventBtn").onclick = () => {
+            const list = getFilteredPrograms();
+            if (!list.length) return;
+            currentIndex = (currentIndex + 1) % list.length;
+            renderDockWidget();
+        };
+
+        // =========================================================================
+        // 4. REAL-TIME LIVE SYNC VIA GEMINI API + GOOGLE SEARCH GROUNDING
+        // =========================================================================
+        async function syncRealLiveGuide() {
+            const badge = document.getElementById("liveDataSourceBadge");
+            const syncBtn = document.getElementById("syncLiveBtn");
+            badge.textContent = "SYNCING...";
+            syncBtn.disabled = true;
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                const prompt = `Find 6 real live or today's Indian sports matches (Cricket, ISL Football, Premier League/UEFA) and popular Malayalam/Tamil/Hindi TV shows airing right now in India. Include live scores if currently in progress. Return ONLY a raw JSON array of objects with keys: id, title, channel, platform (JioHotstar, SonyLIV, Airtel Xstream, or Sun NXT), category, region, time, liveScore, teamA, teamB, pkg, deepLink, xstreamUri.`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ google_search: {} }]
+                };
+
+                const res = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+                if (jsonMatch) {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        livePrograms = parsed;
+                        currentIndex = 0;
+                        renderDockWidget();
+                        badge.textContent = "LIVE SYNCED";
+                    }
+                } else {
+                    badge.textContent = "LIVE";
+                }
+            } catch (err) {
+                badge.textContent = "LIVE";
+            } finally {
+                syncBtn.disabled = false;
+            }
+        }
+
+        document.getElementById("syncLiveBtn").onclick = syncRealLiveGuide;
+
+        // =========================================================================
+        // 5. MODALS (WATCH DEEP-LINK, MY INTERESTS, KOTLIN CODE EXPORT)
+        // =========================================================================
+        function openWatchModal(item) {
+            document.getElementById("modalMatchTitle").textContent = item.title;
+            document.getElementById("modalMatchSub").textContent = `${item.channel} • Streaming on ${item.platform}`;
+            const scoreEl = document.getElementById("modalScoreLine");
+            if (item.liveScore) {
+                scoreEl.textContent = `⚡ ${item.liveScore}`;
+                scoreEl.classList.remove("hidden");
+            } else {
+                scoreEl.classList.add("hidden");
+            }
+            document.getElementById("modalIntentCode").textContent =
+                `Intent(Intent.ACTION_VIEW, Uri.parse("${item.deepLink}")).setPackage("${item.pkg}")`;
+            document.getElementById("modalPrimaryLink").href = item.deepLink;
+            document.getElementById("modalXstreamLink").href = item.xstreamUri || "https://www.airtelxstream.in/livetv-channels";
+            document.getElementById("watchModal").classList.remove("hidden");
+        }
+
+        function closeWatchModal() {
+            document.getElementById("watchModal").classList.add("hidden");
+        }
+
+        const allInterestOptions = ["Malayalam", "Tamil", "Hindi", "International", "Cricket", "ISL Football", "Football", "Entertainment", "News"];
+        function renderInterestChips() {
+            const grid = document.getElementById("interestChipsGrid");
+            grid.innerHTML = allInterestOptions.map(opt => {
+                const selected = savedInterests.has(opt);
+                return `<button onclick="toggleInterest('${opt}')" class="px-3 py-1.5 rounded-xl text-xs font-bold border ${
+                    selected
+                        ? "bg-indigo-600 border-indigo-400 text-white"
+                        : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+                }">${selected ? "✓ " : ""}${opt}</button>`;
+            }).join("");
+        }
+
+        function toggleInterest(opt) {
+            if (savedInterests.has(opt)) savedInterests.delete(opt);
+            else savedInterests.add(opt);
+            currentIndex = 0;
+            renderInterestChips();
+            renderDockWidget();
+        }
+
+        function clearInterests() {
+            savedInterests.clear();
+            currentIndex = 0;
+            renderInterestChips();
+            renderDockWidget();
+        }
+
+        document.getElementById("openPrefsBtn").onclick = () => {
+            renderInterestChips();
+            document.getElementById("prefsModal").classList.remove("hidden");
+        };
+        function closePrefsModal() {
+            document.getElementById("prefsModal").classList.add("hidden");
+        }
+
+        const kotlinDockWidgetCode = `// Single-Event Live Dock Strip for CleanMyTV (Displays ONE event at a time with Prev/Next)
+@Composable
+fun MashadSingleEventDockWidget(
+    programs: List<LiveProgram>,
+    onWatchPrimary: (LiveProgram) -> Unit,
+    onWatchAirtelXstream: (LiveProgram) -> Unit
+) {
+    if (programs.isEmpty()) return
+    var currentIndex by remember { mutableStateOf(0) }
+    val safeIndex = currentIndex.coerceIn(0, programs.lastIndex)
+    val item = programs[safeIndex]
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .background(Color(0xCC0F172A))
+            .border(1.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(22.dp))
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "🔴 \${item.time}  (\${safeIndex + 1}/\${programs.size})",
+                    color = Color(0xFFFB7185),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                if (item.liveScore.isNotEmpty()) {
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "⚡ \${item.liveScore}",
+                        color = Color(0xFF6EE7B7),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+            }
+            Text(
+                text = item.title,
+                color = Color.White,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+            Text(
+                text = "\${item.channel} • \${item.platform}",
+                color = Color.LightGray,
+                fontSize = 11.sp
+            )
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = { onWatchPrimary(item) }) {
+                Text("Watch")
+            }
+            OutlinedButton(onClick = { onWatchAirtelXstream(item) }) {
+                Text("Xstream Free")
+            }
+            IconButton(onClick = {
+                currentIndex = if (safeIndex - 1 < 0) programs.lastIndex else safeIndex - 1
+            }) {
+                Text("‹", color = Color.White, fontSize = 18.sp)
+            }
+            IconButton(onClick = {
+                currentIndex = (safeIndex + 1) % programs.size
+            }) {
+                Text("›", color = Color.White, fontSize = 18.sp)
+            }
+        }
+    }
+}`;
+
+        document.getElementById("openRepoBtn").onclick = () => {
+            document.getElementById("kotlinCodePre").textContent = kotlinDockWidgetCode;
+            document.getElementById("repoModal").classList.remove("hidden");
+        };
+        function closeRepoModal() {
+            document.getElementById("repoModal").classList.add("hidden");
+        }
+
+        function copyKotlinSnippet() {
+            const textarea = document.createElement("textarea");
+            textarea.value = kotlinDockWidgetCode;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            const btn = document.getElementById("copyKotlinBtn");
+            btn.textContent = "Copied ✓";
+            setTimeout(() => (btn.textContent = "Copy Code"), 1800);
+        }
+
+        // =========================================================================
+        // 6. INITIALIZE WIDGET ON LOAD
+        // =========================================================================
+        window.addEventListener("DOMContentLoaded", () => {
+            renderFilterBar();
+            renderDockWidget();
+        });
+    </script>
+</body>
+</html>
