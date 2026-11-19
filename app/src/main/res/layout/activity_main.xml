@@ -12,13 +12,13 @@
         android:scaleType="centerCrop"
         android:contentDescription="@null" />
 
-    <!-- 2. Dark Cinematic Vignette Scrim (Ensures text & cards pop) -->
+    <!-- 2. Dark Vignette Scrim -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/scrim_vignette" />
 
-    <!-- 3. Top Header Bar (Clock, Date, Branding) -->
+    <!-- 3. Top Header Bar: Logo, Launcher Title, Weather & Clock -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
         android:gravity="center_vertical"
         android:paddingStart="44dp"
         android:paddingEnd="44dp"
-        android:paddingTop="26dp">
+        android:paddingTop="22dp">
 
         <TextView
             android:layout_width="38dp"
@@ -58,55 +58,198 @@
                 android:id="@+id/tvLiveStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="● 529 Live Regional &amp; Sports EPG Synced"
+                android:text="● Multi-Sports &amp; Live Regional EPG Active"
                 android:textColor="#10B981"
                 android:textSize="11sp" />
         </LinearLayout>
 
+        <!-- Weather Widget & Clock Container -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvClock"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="05:41 PM"
-                android:textColor="#FFFFFF"
-                android:textSize="26sp"
-                android:textStyle="bold" />
+                android:background="#26FFFFFF"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvDate"
+                <TextView
+                    android:id="@+id/tvWeather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⛅ 28°C Partly Cloudy"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Thursday, 19 November"
-                android:textColor="#94A3B8"
-                android:textSize="11sp" />
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/tvClock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="05:58 AM"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thursday, 19 November"
+                    android:textColor="#94A3B8"
+                    android:textSize="11sp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 4. Middle Section: Rich Live EPG & Sports Dock Card -->
+    <!-- 4. Middle Section: Interest Filter Strip + Live Dock -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="44dp"
         android:layout_marginEnd="44dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="46dp"
         android:orientation="vertical">
 
+        <!-- Category / Interest Filter Strip (Only selected items show!) -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:overScrollMode="never"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnFilterAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_chip_filter"
+                    android:focusable="true"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="★ ALL LIVE"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnFilterCricket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_filter"
+                    android:focusable="true"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="⚡ CRICKET (IND vs NZ)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnFilterFootball"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_filter"
+                    android:focusable="true"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="⚽ FOOTBALL (ISL / UEFA)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnFilterOtherSports"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_filter"
+                    android:focusable="true"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="🥊 PKL / TENNIS / F1"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnFilterMalayalam"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_filter"
+                    android:focusable="true"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="🌴 MALAYALAM"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnFilterTamil"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_filter"
+                    android:focusable="true"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="🎬 TAMIL"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnFilterHindi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_chip_filter"
+                    android:focusable="true"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="📺 HINDI"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Main Live Dock Card -->
         <LinearLayout
             android:id="@+id/cardLiveDock"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
-            android:padding="22dp">
+            android:padding="20dp">
 
-            <!-- Top Row of Dock: Live Pills & Category Badges -->
+            <!-- Badges Bar -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -122,7 +265,7 @@
                     android:paddingEnd="10dp"
                     android:paddingTop="3dp"
                     android:paddingBottom="3dp"
-                    android:text="● LIVE"
+                    android:text="● LIVE MATCH"
                     android:textColor="#FFFFFF"
                     android:textSize="10sp"
                     android:textStyle="bold" />
@@ -137,38 +280,8 @@
                     android:paddingEnd="10dp"
                     android:paddingTop="3dp"
                     android:paddingBottom="3dp"
-                    android:text="1 / 529"
+                    android:text="1 / 1"
                     android:textColor="#E2E8F0"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvChannelBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="#312E81"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:text="STAR SPORTS 1 HD"
-                    android:textColor="#C7D2FE"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvRegionTag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="#1E293B"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:text="MALAYALAM"
-                    android:textColor="#94A3B8"
                     android:textSize="10sp"
                     android:textStyle="bold" />
 
@@ -182,15 +295,45 @@
                     android:paddingEnd="10dp"
                     android:paddingTop="3dp"
                     android:paddingBottom="3dp"
-                    android:text="⚡ LIVE SCORE"
+                    android:text="⚡ IND 248/4 (62.3 ov)"
                     android:textColor="#6EE7B7"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvChannelBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="#312E81"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:text="SONY TEN 1 HD"
+                    android:textColor="#C7D2FE"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvVenueTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="#1E293B"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:text="📍 Wankhede Stadium"
+                    android:textColor="#94A3B8"
                     android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="12dp" />
+                android:layout_height="10dp" />
 
             <!-- Middle Row: Event Title, Channel Info & Remote Buttons -->
             <LinearLayout
@@ -209,7 +352,7 @@
                         android:id="@+id/tvEventTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="India vs Australia — 2nd Test"
+                        android:text="India vs New Zealand — 2nd Test Day 3"
                         android:textColor="#FFFFFF"
                         android:textSize="22sp"
                         android:textStyle="bold"
@@ -220,13 +363,22 @@
                         android:id="@+id/tvEventSubtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Star Sports 1 HD • JioHotstar • Cricket • 09:30 AM - 05:00 PM"
-                        android:textColor="#94A3B8"
+                        android:layout_marginTop="3dp"
+                        android:text="Sony Ten 1 HD • JioHotstar &amp; Airtel Xstream • Live Broadcast"
+                        android:textColor="#CBD5E1"
                         android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvEventDetails"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="India lead by 184 runs. Kohli 78*(112), Pant 42*(38). Watch on Airtel Xstream Play or JioHotstar."
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp" />
                 </LinearLayout>
 
-                <!-- Navigation (Prev/Next) & Dual Launch Buttons -->
+                <!-- Navigation & Dual Launch Buttons -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -235,7 +387,7 @@
 
                     <Button
                         android:id="@+id/btnPrev"
-                        android:layout_width="56dp"
+                        android:layout_width="54dp"
                         android:layout_height="44dp"
                         android:background="@drawable/bg_btn_nav"
                         android:focusable="true"
@@ -246,7 +398,7 @@
 
                     <Button
                         android:id="@+id/btnNext"
-                        android:layout_width="56dp"
+                        android:layout_width="54dp"
                         android:layout_height="44dp"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/bg_btn_nav"
@@ -260,13 +412,13 @@
                         android:id="@+id/btnWatch"
                         android:layout_width="wrap_content"
                         android:layout_height="44dp"
-                        android:layout_marginStart="12dp"
+                        android:layout_marginStart="10dp"
                         android:background="@drawable/bg_btn_primary"
                         android:focusable="true"
                         android:nextFocusDown="@id/rvApps"
-                        android:paddingStart="18dp"
-                        android:paddingEnd="18dp"
-                        android:text="▶ WATCH NOW"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:text="▶ WATCH"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -279,8 +431,8 @@
                         android:background="@drawable/bg_btn_secondary"
                         android:focusable="true"
                         android:nextFocusDown="@id/rvApps"
-                        android:paddingStart="18dp"
-                        android:paddingEnd="18dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
                         android:text="AIRTEL XSTREAM"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
@@ -290,7 +442,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 5. Bottom Section: Installed Apps & Channels (Pinned at Bottom of Screen) -->
+    <!-- 5. Bottom Section: 100% Installed TV Apps Pinned at Bottom -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -298,25 +450,26 @@
         android:orientation="vertical"
         android:paddingStart="44dp"
         android:paddingEnd="44dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="20dp">
 
         <TextView
+            android:id="@+id/tvAppsCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="INSTALLED APPS &amp; OTT CHANNELS"
+            android:text="ALL INSTALLED APPS &amp; OTT CHANNELS"
             android:textColor="#94A3B8"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textStyle="bold"
             android:letterSpacing="0.06" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="8dp" />
+            android:layout_height="6dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvApps"
             android:layout_width="match_parent"
-            android:layout_height="124dp"
+            android:layout_height="115dp"
             android:orientation="horizontal"
             android:clipToPadding="false"
             android:paddingStart="2dp"
