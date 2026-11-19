@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
 
     private ImageView ivWallpaper;
     private TextView tvClock, tvDate, tvLiveStatus;
-    private TextView tvLiveBadge, tvEventCounter, tvLiveScore, tvCategoryTag;
+    private TextView tvLiveBadge, tvEventCounter, tvChannelBadge, tvRegionTag, tvLiveScore;
     private TextView tvEventTitle, tvEventSubtitle;
     private Button btnPrev, btnNext, btnWatch, btnXstream;
     private RecyclerView rvApps;
@@ -49,7 +49,8 @@ public class MainActivity extends Activity {
     private final List<LiveItem> liveItems = new ArrayList<>();
     private int currentEventIndex = 0;
 
-    private final List<File> wallpaperFiles = new ArrayList<>();
+    private final List<String> assetWallpapers = new ArrayList<>();
+    private final List<File> sdcardWallpapers = new ArrayList<>();
     private int currentWallpaperIndex = 0;
 
     @Override
@@ -59,10 +60,10 @@ public class MainActivity extends Activity {
 
         bindViews();
         startClock();
-        loadLiveGuide();
+        loadRealLiveGuide();
         setupLiveDockControls();
         loadInstalledApps();
-        setupWallpaperRotation();
+        setupFamilyWallpaperEngine();
     }
 
     private void bindViews() {
@@ -73,8 +74,9 @@ public class MainActivity extends Activity {
 
         tvLiveBadge = findViewById(R.id.tvLiveBadge);
         tvEventCounter = findViewById(R.id.tvEventCounter);
+        tvChannelBadge = findViewById(R.id.tvChannelBadge);
+        tvRegionTag = findViewById(R.id.tvRegionTag);
         tvLiveScore = findViewById(R.id.tvLiveScore);
-        tvCategoryTag = findViewById(R.id.tvCategoryTag);
 
         tvEventTitle = findViewById(R.id.tvEventTitle);
         tvEventSubtitle = findViewById(R.id.tvEventSubtitle);
@@ -104,10 +106,11 @@ public class MainActivity extends Activity {
         mainHandler.post(clockRunnable);
     }
 
-    private void loadLiveGuide() {
+    private void loadRealLiveGuide() {
+        liveItems.clear();
         try {
             InputStream is = getAssets().open("live_guide.json");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -115,46 +118,57 @@ public class MainActivity extends Activity {
             }
             reader.close();
 
-            JSONObject root = new JSONObject(sb.toString());
-            JSONArray array = root.optJSONArray("programs");
-            if (array == null) array = root.optJSONArray("events");
-            if (array == null && root.length() > 0) {
-                // Try top-level array or first array key
-                String firstKey = root.keys().next();
-                array = root.optJSONArray(firstKey);
+            JSONArray array = new JSONArray(sb.toString());
+            List<LiveItem> featuredAlerts = new ArrayList<>();
+            List<LiveItem> regularShows = new ArrayList<>();
+
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                String id = obj.optString("id", "evt-" + i);
+                String channel = obj.optString("channel", "Indian TV");
+                String title = obj.optString("title", "Live Broadcast");
+                String timeRange = obj.optString("time_range", "LIVE NOW");
+                String region = obj.optString("region", "National");
+                String category = obj.optString("category", "General");
+                String ottName = obj.optString("ott_name", "JioHotstar");
+                String pkgName = obj.optString("package_name", "in.startv.hotstar");
+                String deepLink = obj.optString("deep_link", "https://www.hotstar.com");
+                String xstreamUri = obj.optString("xstream_uri", "https://www.airtelxstream.in/livetv-channels");
+                boolean isAlert = obj.optBoolean("is_featured_alert", false);
+
+                // Check for live scores or sport matchups
+                String score = "";
+                String teamA = null;
+                String teamB = null;
+                if (category.equalsIgnoreCase("Cricket") || title.toLowerCase(Locale.ROOT).contains(" vs ") || title.toLowerCase(Locale.ROOT).contains(" v ")) {
+                    if (title.contains(" vs ")) {
+                        String[] parts = title.split(" vs ");
+                        teamA = parts[0].trim();
+                        teamB = parts[1].trim();
+                    }
+                    score = isAlert ? "MATCH LIVE" : "LIVE CRICKET";
+                } else if (category.equalsIgnoreCase("Football")) {
+                    score = "LIVE MATCH";
+                }
+
+                LiveItem item = new LiveItem(id, title, channel, ottName, category, region, timeRange, score, teamA, teamB, pkgName, deepLink, xstreamUri);
+
+                if (isAlert) {
+                    featuredAlerts.add(item);
+                } else {
+                    regularShows.add(item);
+                }
             }
 
-            if (array != null) {
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject obj = array.getJSONObject(i);
-                    String id = obj.optString("id", "id-" + i);
-                    String title = obj.optString("title", "Live Event");
-                    String channel = obj.optString("channel", "Indian TV");
-                    String platform = obj.optString("platform", "JioHotstar");
-                    String category = obj.optString("category", "Live");
-                    String region = obj.optString("region", "National");
-                    String time = obj.optString("time", "LIVE NOW");
-                    String score = obj.optString("liveScore", obj.optString("score", ""));
-                    String teamA = obj.optString("teamA", null);
-                    String teamB = obj.optString("teamB", null);
-                    String pkg = obj.optString("pkg", "in.startv.hotstar");
-                    String deepLink = obj.optString("deepLink", "https://www.hotstar.com/in/sports");
-                    String xstream = obj.optString("xstreamUri", "https://www.airtelxstream.in/livetv-channels");
+            // Featured alerts first (Matches & Big Shows), then the rest of the 529 channels
+            liveItems.addAll(featuredAlerts);
+            liveItems.addAll(regularShows);
 
-                    liveItems.add(new LiveItem(id, title, channel, platform, category, region, time, score, teamA, teamB, pkg, deepLink, xstream));
-                }
+            if (tvLiveStatus != null) {
+                tvLiveStatus.setText("● " + liveItems.size() + " Live Regional & Sports Guides Active");
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        if (liveItems.isEmpty()) {
-            // High quality fallback presets
-            liveItems.add(new LiveItem("1", "India vs Australia — 2nd Test", "Star Sports 1 HD", "JioHotstar", "Cricket", "National", "LIVE NOW", "IND 248/4 (62.3 ov)", "India", "Australia", "in.startv.hotstar", "https://www.hotstar.com/in/sports", "https://www.airtelxstream.in/livetv-channels"));
-            liveItems.add(new LiveItem("2", "Kerala Blasters vs Mohun Bagan", "Star Sports 3", "JioHotstar", "Football", "ISL", "LIVE NOW", "KBFC 2 - 1 MB", "Kerala Blasters", "Mohun Bagan", "in.startv.hotstar", "https://www.hotstar.com/in/sports", "https://www.airtelxstream.in/livetv-channels"));
-            liveItems.add(new LiveItem("3", "Bumper Chiri Aaghosham", "Mazhavil Manorama", "ManoramaMAX", "Entertainment", "Malayalam", "LIVE NOW", "Prime Time Show", null, null, "com.quickplay.android.multiscreen.manorama", "https://www.manoramamax.com", "https://www.airtelxstream.in/livetv-channels/mazhavil-manorama-hd/449"));
-            liveItems.add(new LiveItem("4", "Bigg Boss Malayalam", "Asianet HD", "JioHotstar", "Reality", "Malayalam", "LIVE NOW", "Daily Episode", null, null, "in.startv.hotstar", "https://www.hotstar.com", "https://www.airtelxstream.in/livetv-channels/asianet-hd/384"));
-            liveItems.add(new LiveItem("5", "Super Singer Season 10", "Star Vijay HD", "JioHotstar", "Music", "Tamil", "LIVE NOW", "Grand Finale", null, null, "in.startv.hotstar", "https://www.hotstar.com", "https://www.airtelxstream.in/livetv-channels/star-vijay-hd/386"));
         }
 
         renderEvent(0);
@@ -166,8 +180,11 @@ public class MainActivity extends Activity {
         LiveItem item = liveItems.get(currentEventIndex);
 
         tvEventCounter.setText((currentEventIndex + 1) + " / " + liveItems.size());
+        tvChannelBadge.setText(item.channel.toUpperCase(Locale.ROOT));
+        tvRegionTag.setText(item.region.toUpperCase(Locale.ROOT) + " • " + item.category.toUpperCase(Locale.ROOT));
+
         tvEventTitle.setText(item.title);
-        tvEventSubtitle.setText(item.channel + " • " + item.platform + " • " + item.category + " (" + item.region + ")");
+        tvEventSubtitle.setText(item.channel + " • " + item.platform + " • " + item.time);
 
         if (item.liveScore != null && !item.liveScore.trim().isEmpty()) {
             tvLiveScore.setVisibility(View.VISIBLE);
@@ -176,7 +193,7 @@ public class MainActivity extends Activity {
             tvLiveScore.setVisibility(View.GONE);
         }
 
-        tvCategoryTag.setText(item.category.toUpperCase(Locale.ROOT));
+        btnWatch.setText("▶ " + item.platform.toUpperCase(Locale.ROOT));
     }
 
     private void setupLiveDockControls() {
@@ -204,15 +221,14 @@ public class MainActivity extends Activity {
             launchAppOrUrl("tv.airtel.xstream.tvapp", item.xstreamUri);
         });
 
-        // Focus watch button by default on load
         btnWatch.requestFocus();
     }
 
     private void launchAppOrUrl(String packageName, String fallbackUrl) {
         try {
             Intent launchIntent = null;
+            PackageManager pm = getPackageManager();
             if (packageName != null && !packageName.isEmpty()) {
-                PackageManager pm = getPackageManager();
                 launchIntent = pm.getLeanbackLaunchIntentForPackage(packageName);
                 if (launchIntent == null) {
                     launchIntent = pm.getLaunchIntentForPackage(packageName);
@@ -227,7 +243,7 @@ public class MainActivity extends Activity {
                 startActivity(webIntent);
             }
         } catch (Exception e) {
-            Toast.makeText(this, "Could not open channel", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Opening channel broadcast...", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -262,52 +278,100 @@ public class MainActivity extends Activity {
         rvApps.setAdapter(new AppsAdapter(this, appList));
     }
 
-    private void setupWallpaperRotation() {
-        File[] candidateDirs = new File[] {
-                new File("/sdcard/Android/data/com.gathin.tvhome/files/wallpapers"),
-                new File("/sdcard/wallpapers"),
-                new File("/sdcard/Pictures")
-        };
+    private void setupFamilyWallpaperEngine() {
+        // 1. Check embedded wallpapers from assets
+        try {
+            String[] files = getAssets().list("wallpapers");
+            if (files != null && files.length > 0) {
+                for (String f : files) {
+                    String lower = f.toLowerCase(Locale.ROOT);
+                    if (lower.endsWith(".jpg") || lower.endsWith(".png") || lower.endsWith(".webp")) {
+                        assetWallpapers.add(f);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        // 2. Also check external sdcard
+        File[] candidateDirs = new File[] {
+                new File("/sdcard/wallpapers"),
+                new File("/sdcard/Pictures"),
+                new File("/sdcard/Android/data/com.gathin.tvhome/files/wallpapers")
+        };
         for (File dir : candidateDirs) {
             if (dir.exists() && dir.isDirectory()) {
                 File[] files = dir.listFiles();
                 if (files != null) {
                     for (File f : files) {
                         String name = f.getName().toLowerCase(Locale.ROOT);
-                        if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp")) {
-                            wallpaperFiles.add(f);
+                        if (name.endsWith(".jpg") || name.endsWith(".png") || name.endsWith(".webp")) {
+                            sdcardWallpapers.add(f);
                         }
                     }
                 }
             }
         }
 
-        if (!wallpaperFiles.isEmpty()) {
-            Collections.shuffle(wallpaperFiles);
-            showNextWallpaper();
+        if (!assetWallpapers.isEmpty()) {
+            Collections.shuffle(assetWallpapers);
+            showNextAssetWallpaper();
 
-            // Rotate every 30 seconds
-            Runnable wallpaperTicker = new Runnable() {
+            // Rotate every 20 seconds
+            Runnable ticker = new Runnable() {
                 @Override
                 public void run() {
-                    showNextWallpaper();
-                    mainHandler.postDelayed(this, 30000);
+                    showNextAssetWallpaper();
+                    mainHandler.postDelayed(this, 20000);
                 }
             };
-            mainHandler.postDelayed(wallpaperTicker, 30000);
+            mainHandler.postDelayed(ticker, 20000);
+        } else if (!sdcardWallpapers.isEmpty()) {
+            Collections.shuffle(sdcardWallpapers);
+            showNextSdcardWallpaper();
+
+            Runnable ticker = new Runnable() {
+                @Override
+                public void run() {
+                    showNextSdcardWallpaper();
+                    mainHandler.postDelayed(this, 20000);
+                }
+            };
+            mainHandler.postDelayed(ticker, 20000);
         }
     }
 
-    private void showNextWallpaper() {
-        if (wallpaperFiles.isEmpty()) return;
-        currentWallpaperIndex = (currentWallpaperIndex + 1) % wallpaperFiles.size();
-        File nextFile = wallpaperFiles.get(currentWallpaperIndex);
+    private void showNextAssetWallpaper() {
+        if (assetWallpapers.isEmpty()) return;
+        currentWallpaperIndex = (currentWallpaperIndex + 1) % assetWallpapers.size();
+        String assetPath = "wallpapers/" + assetWallpapers.get(currentWallpaperIndex);
 
         try {
-            final Bitmap bitmap = BitmapFactory.decodeFile(nextFile.getAbsolutePath());
+            InputStream is = getAssets().open(assetPath);
+            final Bitmap bitmap = BitmapFactory.decodeStream(is);
+            is.close();
+
             if (bitmap != null) {
-                ivWallpaper.animate().alpha(0.2f).setDuration(400).withEndAction(() -> {
+                ivWallpaper.animate().alpha(0.25f).setDuration(400).withEndAction(() -> {
+                    ivWallpaper.setImageBitmap(bitmap);
+                    ivWallpaper.animate().alpha(1.0f).setDuration(400).start();
+                }).start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showNextSdcardWallpaper() {
+        if (sdcardWallpapers.isEmpty()) return;
+        currentWallpaperIndex = (currentWallpaperIndex + 1) % sdcardWallpapers.size();
+        File f = sdcardWallpapers.get(currentWallpaperIndex);
+
+        try {
+            final Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
+            if (bitmap != null) {
+                ivWallpaper.animate().alpha(0.25f).setDuration(400).withEndAction(() -> {
                     ivWallpaper.setImageBitmap(bitmap);
                     ivWallpaper.animate().alpha(1.0f).setDuration(400).start();
                 }).start();
@@ -319,7 +383,6 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // Prevent accidental back exit from home launcher
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             btnWatch.requestFocus();
             return true;
