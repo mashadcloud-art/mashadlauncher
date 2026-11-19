@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mashad Launcher</string>
+    <string name="live_dock_title">LIVE GUIDE &amp; SPORTS DOCK</string>
+    <string name="watch_now">▶ WATCH NOW</string>
+    <string name="watch_airtel">AIRTEL XSTREAM</string>
+    <string name="prev_label">‹ PREV</string>
+    <string name="next_label">NEXT ›</string>
+    <string name="installed_apps">APPS &amp; OTT CHANNELS</string>
+</resources>

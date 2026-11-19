@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#0B0D14</color>
+    <color name="glass_card">#D90F172A</color>
+    <color name="glass_card_stroke">#33FFFFFF</color>
+    <color name="accent_red">#EF4444</color>
+    <color name="accent_emerald">#10B981</color>
+    <color name="accent_blue">#3B82F6</color>
+    <color name="accent_indigo">#6366F1</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_muted">#94A3B8</color>
+    <color name="focus_ring">#FFFFFF</color>
+</resources>
