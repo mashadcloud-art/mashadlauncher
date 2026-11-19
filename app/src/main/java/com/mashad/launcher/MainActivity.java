@@ -136,24 +136,79 @@ public class MainActivity extends Activity {
     private void loadMultiSportsAndEpgData() {
         allLiveItems.clear();
 
-        // 1. TOP LIVE SPORTS: Real Matches & Scores (Cricket, ISL Football, UEFA, PKL, Tennis)
+        // 1. REAL CURRENT FIXTURE: India vs New Zealand (1st Test Wellington Live Today)
         allLiveItems.add(new LiveItem(
-                "sport-ind-nz",
-                "India vs New Zealand — 2nd Test Day 3",
-                "Star Sports 1 HD / Sony Ten 1",
+                "ind-nz-1st-test",
+                "India vs New Zealand — 1st Test (Live Today)",
+                "Sony Ten 1 HD / Star Sports",
+                "SonyLIV, Hotstar & Airtel Xstream",
+                "Cricket",
+                "National",
+                "03:30 AM IST (LIVE)",
+                "⚡ 1st Test · Day 1",
+                "📍 Cello Basin Reserve, Wellington, NZ",
+                "India's Tour of New Zealand 2026. Live coverage from Wellington. Streaming on Airtel Xstream Play & SonyLIV.",
+                "Cricket",
+                "com.sonyliv",
+                "https://www.sonyliv.com/custompage/sports",
+                "https://www.airtelxstream.in/livetv-channels/sony-ten-1-hd/SONY_TEN_1_HD"
+        ));
+
+        // 2. UPCOMING FIXTURE: 2nd Test Christchurch
+        allLiveItems.add(new LiveItem(
+                "ind-nz-2nd-test",
+                "India vs New Zealand — 2nd Test (Upcoming)",
+                "Sony Ten 1 HD / Star Sports",
+                "SonyLIV & Airtel Xstream",
+                "Cricket",
+                "National",
+                "Nov 27 – Dec 1",
+                "📅 UPCOMING",
+                "📍 Hagley Oval, Christchurch",
+                "2nd Test Match. Watch live on Airtel Xstream Play and SonyLIV.",
+                "Cricket",
+                "com.sonyliv",
+                "https://www.sonyliv.com/custompage/sports",
+                "https://www.airtelxstream.in/livetv-channels/sony-ten-1-hd/SONY_TEN_1_HD"
+        ));
+
+        // 3. UPCOMING: India vs Sri Lanka ODI Series
+        allLiveItems.add(new LiveItem(
+                "ind-sl-odi",
+                "India vs Sri Lanka — 1st ODI (Upcoming)",
+                "Star Sports 1 HD / JioHotstar",
                 "JioHotstar & Airtel Xstream",
                 "Cricket",
                 "National",
-                "LIVE MATCH",
-                "IND 248/4 (62.3 ov)",
-                "📍 Wankhede Stadium, Mumbai",
-                "India lead by 184 runs. Kohli 78*(112), Pant 42*(38). Streaming live on Airtel Xstream Play & JioHotstar.",
+                "December 2026",
+                "📅 UPCOMING",
+                "📍 Arun Jaitley Stadium, Delhi",
+                "Sri Lanka Tour of India 2026 (3 ODIs, 3 T20Is). Live on JioHotstar & Airtel Xstream Play.",
                 "Cricket",
                 "in.startv.hotstar",
                 "https://www.hotstar.com/in/sports/cricket",
                 "https://www.airtelxstream.in/livetv-channels/star-sports-1-hd/STAR_SPORTS_1_HD"
         ));
 
+        // 4. UPCOMING: Border-Gavaskar Trophy 2027
+        allLiveItems.add(new LiveItem(
+                "bgt-2027",
+                "Australia vs India — 1st Test (Border-Gavaskar Trophy)",
+                "Star Sports 1 HD",
+                "JioHotstar & Airtel Xstream",
+                "Cricket",
+                "National",
+                "Starts Jan 21, 2027",
+                "🏆 BGT 2027",
+                "📍 VCA Stadium, Nagpur",
+                "5-Test World Test Championship Series. Live on Star Sports & Airtel Xstream Play.",
+                "Cricket",
+                "in.startv.hotstar",
+                "https://www.hotstar.com/in/sports/cricket",
+                "https://www.airtelxstream.in/livetv-channels/star-sports-1-hd/STAR_SPORTS_1_HD"
+        ));
+
+        // 5. FOOTBALL (ISL & UEFA)
         allLiveItems.add(new LiveItem(
                 "sport-isl-kbfc",
                 "Kerala Blasters vs Mohun Bagan Super Giant",
@@ -161,10 +216,10 @@ public class MainActivity extends Activity {
                 "JioHotstar & Airtel Xstream",
                 "Football",
                 "Malayalam",
-                "LIVE MATCH",
-                "KBFC 2 - 1 MB · 74'",
+                "TONIGHT 07:30 PM",
+                "⚽ ISL MATCH",
                 "📍 JLN Stadium, Kochi",
-                "ISL 2024-25 Season Clash. Luna 34', Jimenez 58'. Live in Malayalam on JioHotstar & Airtel Xstream.",
+                "ISL Blockbuster clash. Live with Malayalam commentary on Airtel Xstream Play & JioHotstar.",
                 "Football",
                 "in.startv.hotstar",
                 "https://www.hotstar.com/in/sports/football",
@@ -178,16 +233,17 @@ public class MainActivity extends Activity {
                 "SonyLIV & Airtel Xstream",
                 "Football",
                 "International",
-                "LIVE MATCH",
-                "GER 1 - 0 NED · 62'",
+                "LIVE NOW",
+                "⚽ UEFA",
                 "📍 Allianz Arena, Munich",
-                "Matchday 4 European clash. Watch live on SonyLIV and Airtel Xstream Play.",
+                "European championship showdown. Live on SonyLIV & Airtel Xstream Play.",
                 "Football",
                 "com.sonyliv",
                 "https://www.sonyliv.com/custompage/sports",
                 "https://www.airtelxstream.in/livetv-channels/sony-ten-2-hd/SONY_TEN_2_HD"
         ));
 
+        // 6. OTHER SPORTS (PKL, Tennis, F1)
         allLiveItems.add(new LiveItem(
                 "sport-pkl-puneri",
                 "Pro Kabaddi: Puneri Paltan vs Patna Pirates",
@@ -195,10 +251,10 @@ public class MainActivity extends Activity {
                 "JioHotstar",
                 "Kabaddi",
                 "National",
-                "LIVE MATCH",
-                "PUN 34 - 31 PAT · 38'",
+                "TONIGHT 08:30 PM",
+                "🥊 PKL",
                 "📍 Gachibowli Stadium, Hyderabad",
-                "PKL Season 11. Super Raid by Aslam Inamdar. Live on Star Sports & JioHotstar.",
+                "PKL Season 11. Super Raid clash. Live on Star Sports & JioHotstar.",
                 "Kabaddi",
                 "in.startv.hotstar",
                 "https://www.hotstar.com/in/sports/kabaddi",
@@ -212,8 +268,8 @@ public class MainActivity extends Activity {
                 "SonyLIV & Airtel Xstream",
                 "Tennis",
                 "International",
-                "LIVE MATCH",
-                "6-4, 4-6, 3-2",
+                "LIVE NOW",
+                "🎾 ATP",
                 "📍 Inalpi Arena, Turin",
                 "Championship Title Decider. Live on Sony Ten 5 HD & Airtel Xstream Play.",
                 "Tennis",
@@ -222,35 +278,18 @@ public class MainActivity extends Activity {
                 "https://www.airtelxstream.in/livetv-channels/sony-ten-5-hd/SONY_TEN_5_HD"
         ));
 
-        allLiveItems.add(new LiveItem(
-                "sport-f1-gp",
-                "Formula 1: Las Vegas Grand Prix Qualifying",
-                "FanCode / F1 TV",
-                "Airtel Xstream & FanCode",
-                "F1 Racing",
-                "International",
-                "LIVE NOW",
-                "Q3 Pole Shootout",
-                "📍 Las Vegas Strip Circuit",
-                "Norris vs Verstappen for Pole Position. Streaming on Airtel Xstream & FanCode.",
-                "F1",
-                "tv.airtel.xstream.tvapp",
-                "https://www.airtelxstream.in",
-                "https://www.airtelxstream.in"
-        ));
-
-        // 2. REGIONAL ENTERTAINMENT & PRIME SHOWS
+        // 7. REGIONAL PRIME SHOWS
         allLiveItems.add(new LiveItem(
                 "reg-asianet-bb",
-                "Bigg Boss Malayalam Season 6",
+                "Bigg Boss Malayalam",
                 "Asianet HD",
                 "JioHotstar & Airtel Xstream",
                 "Entertainment",
                 "Malayalam",
-                "LIVE NOW",
-                "Prime Episode",
-                "📍 Asianet Broadcast Studio",
-                "Hosted by Mohanlal. 24x7 Live stream & Daily Grand Episode on JioHotstar & Airtel Xstream Play.",
+                "09:30 PM",
+                "🌴 MALAYALAM",
+                "📍 Asianet Studio",
+                "Daily Prime Episode. Mohanlal hosts. Live on JioHotstar & Airtel Xstream Play.",
                 "Malayalam",
                 "in.startv.hotstar",
                 "https://www.hotstar.com/in/channels/asianet",
@@ -264,31 +303,14 @@ public class MainActivity extends Activity {
                 "ManoramaMAX & Airtel Xstream",
                 "Entertainment",
                 "Malayalam",
-                "LIVE NOW",
-                "Comedy Round",
+                "08:00 PM",
+                "🌴 MALAYALAM",
                 "📍 Manorama Studios",
-                "Malayalam's favorite comedy stage show. Watch on Airtel Xstream Play & ManoramaMAX.",
+                "Comedy Championship. Live on Airtel Xstream Play & ManoramaMAX.",
                 "Malayalam",
                 "tv.airtel.xstream.tvapp",
                 "https://www.manoramamax.com",
                 "https://www.airtelxstream.in/livetv-channels/mazhavil-manorama-hd/MAZHAVIL_MANORAMA_HD"
-        ));
-
-        allLiveItems.add(new LiveItem(
-                "reg-surya-serial",
-                "Chattambi Paaru",
-                "Sun Surya HD",
-                "Sun NXT & Airtel Xstream",
-                "Entertainment",
-                "Malayalam",
-                "LIVE NOW",
-                "Daily Episode",
-                "📍 Surya TV Studios",
-                "Popular Malayalam family drama. Streaming live on Sun NXT and Airtel Xstream Play.",
-                "Malayalam",
-                "com.suntv.sunnxt",
-                "https://www.sunnxt.com/live-tv",
-                "https://www.airtelxstream.in/livetv-channels/surya-tv-hd/SURYA_TV_HD"
         ));
 
         allLiveItems.add(new LiveItem(
@@ -298,59 +320,23 @@ public class MainActivity extends Activity {
                 "JioHotstar & Airtel Xstream",
                 "Music Reality",
                 "Tamil",
-                "LIVE NOW",
-                "Finals Round",
+                "08:00 PM",
+                "🎬 TAMIL",
                 "📍 Chennai Studios",
-                "Tamil Nadu's flagship musical reality championship. Live on JioHotstar & Airtel Xstream Play.",
+                "Musical Championship. Live on JioHotstar & Airtel Xstream Play.",
                 "Tamil",
                 "in.startv.hotstar",
                 "https://www.hotstar.com/in/channels/star-vijay",
                 "https://www.airtelxstream.in/livetv-channels/star-vijay-hd/STAR_VIJAY_HD"
         ));
 
-        allLiveItems.add(new LiveItem(
-                "reg-sun-kayal",
-                "Kayal Mega Serial",
-                "Sun TV HD",
-                "Sun NXT & Airtel Xstream",
-                "Entertainment",
-                "Tamil",
-                "LIVE NOW",
-                "Prime Episode",
-                "📍 Sun TV Network",
-                "Top rated Tamil prime-time drama. Streaming live on Sun NXT & Airtel Xstream Play.",
-                "Tamil",
-                "com.suntv.sunnxt",
-                "https://www.sunnxt.com/live-tv",
-                "https://www.airtelxstream.in/livetv-channels/sun-tv-hd/SUN_TV_HD"
-        ));
-
-        allLiveItems.add(new LiveItem(
-                "reg-starplus-anupamaa",
-                "Anupamaa",
-                "Star Plus HD",
-                "JioHotstar & Airtel Xstream",
-                "Entertainment",
-                "Hindi",
-                "LIVE NOW",
-                "Prime Episode",
-                "📍 Mumbai Studios",
-                "India's number one Hindi drama series. Live on JioHotstar and Airtel Xstream Play.",
-                "Hindi",
-                "in.startv.hotstar",
-                "https://www.hotstar.com/in/channels/star-plus",
-                "https://www.airtelxstream.in/livetv-channels/star-plus-hd/STAR_PLUS_HD"
-        ));
-
-        // 3. Also parse live_guide.json if available
+        // Also append live_guide.json if present
         try {
             InputStream is = getAssets().open("live_guide.json");
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             StringBuilder sb = new StringBuilder();
             String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
+            while ((line = reader.readLine()) != null) sb.append(line);
             reader.close();
 
             JSONArray array = new JSONArray(sb.toString());
@@ -371,11 +357,9 @@ public class MainActivity extends Activity {
                 if (title.toLowerCase(Locale.ROOT).contains("cricket")) sport = "Cricket";
                 else if (title.toLowerCase(Locale.ROOT).contains("football") || title.toLowerCase(Locale.ROOT).contains("soccer")) sport = "Football";
 
-                allLiveItems.add(new LiveItem(id, title, channel, ottName, category, region, timeRange, "", "📍 Live Broadcast", title + " on " + channel + ".", sport, pkgName, deepLink, xstreamUri));
+                allLiveItems.add(new LiveItem(id, title, channel, ottName, category, region, timeRange, "", "📍 Live TV", title + " on " + channel + ".", sport, pkgName, deepLink, xstreamUri));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception ignored) {}
 
         applyFilter(activeFilter);
     }
@@ -401,7 +385,7 @@ public class MainActivity extends Activity {
             if (filterKey.equals("ALL")) {
                 filteredLiveItems.add(item);
             } else if (filterKey.equals("CRICKET")) {
-                if ("Cricket".equalsIgnoreCase(item.sportType) || item.title.toLowerCase(Locale.ROOT).contains("cricket") || item.title.toLowerCase(Locale.ROOT).contains("ind vs") || item.title.toLowerCase(Locale.ROOT).contains("india vs")) {
+                if ("Cricket".equalsIgnoreCase(item.sportType) || item.title.toLowerCase(Locale.ROOT).contains("cricket") || item.title.toLowerCase(Locale.ROOT).contains("ind vs") || item.title.toLowerCase(Locale.ROOT).contains("india vs") || item.title.toLowerCase(Locale.ROOT).contains("bgt")) {
                     filteredLiveItems.add(item);
                 }
             } else if (filterKey.equals("FOOTBALL")) {
@@ -464,7 +448,7 @@ public class MainActivity extends Activity {
 
         if (item.liveScore != null && !item.liveScore.trim().isEmpty()) {
             tvLiveScore.setVisibility(View.VISIBLE);
-            tvLiveScore.setText("⚡ " + item.liveScore);
+            tvLiveScore.setText(item.liveScore);
         } else {
             tvLiveScore.setVisibility(View.GONE);
         }
@@ -509,13 +493,11 @@ public class MainActivity extends Activity {
 
     private void launchAirtelXstreamDirect(String xstreamUri) {
         try {
-            // Explicit intent to launch Airtel Xstream Play app directly on Android TV
             Intent xstreamIntent = new Intent();
             xstreamIntent.setComponent(new ComponentName("tv.airtel.xstream.tvapp", "tv.airtel.xstream.splash.SplashActivity"));
             xstreamIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(xstreamIntent);
         } catch (Exception e) {
-            // Fallback to web link if app fails
             try {
                 Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(xstreamUri));
                 webIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -555,48 +537,75 @@ public class MainActivity extends Activity {
         Set<String> seen = new HashSet<>();
         String myPkg = getPackageName();
 
-        // 1. Query LEANBACK launcher activities
+        // Specific high-priority TV streaming and media apps
+        String[] priorityApps = new String[] {
+                "com.google.android.youtube.tv",
+                "com.netflix.ninja",
+                "com.amazon.amazonvideo.livingroom",
+                "in.startv.hotstar",
+                "com.sonyliv",
+                "tv.airtel.xstream.tvapp",
+                "com.nathnetwork.xciptv",
+                "com.yablio.sendfilestotv",
+                "com.alphainventor.filemanager",
+                "com.android.vending",
+                "com.google.android.play.games",
+                "com.apps.usbmediaplayer",
+                "com.apps.livetv",
+                "com.clean.pairbluetooth",
+                "com.gathin.tvhome"
+        };
+
+        for (String pkg : priorityApps) {
+            try {
+                ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+                seen.add(pkg);
+                String label = ai.loadLabel(pm).toString();
+                if ("com.google.android.youtube.tv".equals(pkg)) label = "YouTube";
+                else if ("com.netflix.ninja".equals(pkg)) label = "Netflix";
+                else if ("com.amazon.amazonvideo.livingroom".equals(pkg)) label = "Prime Video";
+                else if ("in.startv.hotstar".equals(pkg)) label = "JioHotstar";
+                else if ("tv.airtel.xstream.tvapp".equals(pkg)) label = "Airtel Xstream";
+                else if ("com.nathnetwork.xciptv".equals(pkg)) label = "XCIPTV";
+                else if ("com.yablio.sendfilestotv".equals(pkg)) label = "Send Files";
+                else if ("com.alphainventor.filemanager".equals(pkg)) label = "File Manager";
+                else if ("com.android.vending".equals(pkg)) label = "Play Store";
+
+                appList.add(new AppModel(pkg, label, ai.loadIcon(pm)));
+            } catch (Exception ignored) {}
+        }
+
+        // Add any other installed launcher apps
         Intent leanbackIntent = new Intent(Intent.ACTION_MAIN, null);
         leanbackIntent.addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER);
-        List<ResolveInfo> leanbackApps = pm.queryIntentActivities(leanbackIntent, 0);
-        if (leanbackApps != null) {
-            for (ResolveInfo ri : leanbackApps) {
+        List<ResolveInfo> lb = pm.queryIntentActivities(leanbackIntent, 0);
+        if (lb != null) {
+            for (ResolveInfo ri : lb) {
                 String pkg = ri.activityInfo.packageName;
-                if (pkg.equals(myPkg) || seen.contains(pkg)) continue;
-                seen.add(pkg);
-                appList.add(new AppModel(pkg, ri.loadLabel(pm).toString(), ri.loadIcon(pm)));
+                if (!pkg.equals(myPkg) && !seen.contains(pkg)) {
+                    seen.add(pkg);
+                    appList.add(new AppModel(pkg, ri.loadLabel(pm).toString(), ri.loadIcon(pm)));
+                }
             }
         }
 
-        // 2. Query standard LAUNCHER activities (picks up sideloaded apps like XCIPTV, Send Files, File Manager)
-        Intent standardIntent = new Intent(Intent.ACTION_MAIN, null);
-        standardIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> standardApps = pm.queryIntentActivities(standardIntent, 0);
-        if (standardApps != null) {
-            for (ResolveInfo ri : standardApps) {
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> std = pm.queryIntentActivities(mainIntent, 0);
+        if (std != null) {
+            for (ResolveInfo ri : std) {
                 String pkg = ri.activityInfo.packageName;
-                if (pkg.equals(myPkg) || seen.contains(pkg)) continue;
-                seen.add(pkg);
-                appList.add(new AppModel(pkg, ri.loadLabel(pm).toString(), ri.loadIcon(pm)));
+                if (!pkg.equals(myPkg) && !seen.contains(pkg)) {
+                    seen.add(pkg);
+                    appList.add(new AppModel(pkg, ri.loadLabel(pm).toString(), ri.loadIcon(pm)));
+                }
             }
         }
 
-        // 3. Fallback scan for installed non-system apps with launch intents
-        List<ApplicationInfo> allApps = pm.getInstalledApplications(0);
-        for (ApplicationInfo ai : allApps) {
-            String pkg = ai.packageName;
-            if (pkg.equals(myPkg) || seen.contains(pkg)) continue;
-            if (pm.getLaunchIntentForPackage(pkg) != null) {
-                seen.add(pkg);
-                appList.add(new AppModel(pkg, ai.loadLabel(pm).toString(), ai.loadIcon(pm)));
-            }
-        }
-
-        Collections.sort(appList, (a, b) -> a.label.compareToIgnoreCase(b.label));
         rvApps.setAdapter(new AppsAdapter(this, appList));
 
         if (tvAppsCount != null) {
-            tvAppsCount.setText("ALL INSTALLED APPS & OTT CHANNELS (" + appList.size() + " APPS)");
+            tvAppsCount.setText("ALL INSTALLED APPS (" + appList.size() + " APPS)");
         }
     }
 
@@ -611,9 +620,7 @@ public class MainActivity extends Activity {
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception ignored) {}
 
         File[] candidateDirs = new File[] {
                 new File("/sdcard/wallpapers"),
@@ -677,9 +684,7 @@ public class MainActivity extends Activity {
                     ivWallpaper.animate().alpha(1.0f).setDuration(400).start();
                 }).start();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception ignored) {}
     }
 
     private void showNextSdcardWallpaper() {
@@ -695,9 +700,7 @@ public class MainActivity extends Activity {
                     ivWallpaper.animate().alpha(1.0f).setDuration(400).start();
                 }).start();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception ignored) {}
     }
 
     @Override
