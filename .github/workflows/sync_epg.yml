@@ -1,0 +1,31 @@
+name: Sync Indian Live EPG Guide
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-epg:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run EPG Scraper
+        run: python update_epg.py
+
+      - name: Commit and Push Updated live_guide.json
+        run: |
+          git config --local user.email "bot@mashadlauncher.org"
+          git config --local user.name "Mashad Sync Bot"
+          git add live_guide.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(epg): auto-sync Indian TV & Sports guide [skip ci]" && git push)
